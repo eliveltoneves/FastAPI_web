@@ -23,13 +23,16 @@ class MembroController(BaseController):
         nome: str = form.get('nome')
         funcao: str = form.get('funcao')
         imagem: UploadFile = form.get('imagem')
+        email: str = form.get('email')
+        senha: str = form.get('senha') # falta add rash 
+
 
         # Nome aleatório para a imagem
         arquivo_ext: str = imagem.filename.split('.')[-1]
         novo_nome: str = f"{str(uuid4())}.{arquivo_ext}"
 
         # Instanciar o objeto
-        membro: MembroModel = MembroModel(nome=nome, funcao=funcao, imagem=novo_nome)
+        membro: MembroModel = MembroModel(nome=nome, funcao=funcao, imagem=novo_nome, email=email, senha=senha)
 
         # Fazer o upload do arquivo
         async with async_open(f"{settings.MEDIA}/membro/{novo_nome}", "wb") as afile:
@@ -52,11 +55,17 @@ class MembroController(BaseController):
                 nome: str = form.get('nome')
                 funcao: str = form.get('funcao')
                 imagem: UploadFile = form.get('imagem')
+                email: str = form.get('email')
+                senha: str = form.get('senha') # falta add rash
 
                 if nome and nome != membro.nome:
                     membro.nome = nome
                 if funcao and funcao != membro.funcao:
                     membro.funcao = funcao
+                if email and email != membro.email:
+                    membro.email = email
+                if senha and senha != membro.senha:
+                    membro.senha = senha #Falta add hash
                 if imagem.filename:
                     # Gera um nome aleatório
                     arquivo_ext: str = imagem.filename.split('.')[-1]

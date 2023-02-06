@@ -48,7 +48,7 @@
                             <td>{{ dado.nome }}</td>
                             <td>{{ dado.email }}</td>
                             <td>{{ dado.funcao }}</td>
-                            <td>{{ dado.senha|truncate(5) }}...</td>
+                            <td>{{ dado.senha|truncate(7) }}...</td>
                             <td><a href="{{ url_for('media', path='membro/' + dado.imagem) }}" target="_blank">ver</a></td>
                         </tr>
                         {% endfor %}

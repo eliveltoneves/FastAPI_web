@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     DBBaseModel = declarative_base()
     TEMPLATES = Jinja2Templates(directory='templates')
     MEDIA = Path('media')
+    AUTH_COOKIE_NAME: str = 'guniversity'
+    SALTY: str = 'QaPR14SfNkzBtRCjJCFVTtFYljcunxXI-g4hP9g2IhYgrEmiBtzBqoeAPGFEwcyV56d5nwR52zomRL7JhiR3QA'
 
     class Config:
         case_sensitive = True

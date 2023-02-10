@@ -1,7 +1,3 @@
-from datetime import datetime
-
-from fastapi.routing import APIRouter
-from starlette.routing import Route
 from fastapi import status
 from fastapi.requests import Request
 from fastapi.responses import Response, RedirectResponse
@@ -10,6 +6,7 @@ from fastapi.exceptions import HTTPException
 from core.configs import settings
 from controllers.membro_controller import MembroController
 from views.admin.base_crud_view import BaseCrudView
+from core.deps import valida_login
 
 
 
@@ -43,13 +40,18 @@ class MembroAdmin(BaseCrudView):
         """
         Rota para carregar o template do formulário e criar um objeto [GET, POST]
         """
+        context = await valida_login(request)
+
+        try:
+           if not context["membro"]:
+               return settings.TEMPLATES.TemplateResponse('admin/limbo.html', context=context, status_code=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return settings.TEMPLATES.TemplateResponse('admin/limbo.html', context=context, status_code=status.HTTP_404_NOT_FOUND)
+
         membro_controller: MembroController = MembroController(request)
 
         # Se o request for GET
         if request.method == 'GET':
-            # Adicionar o request no context
-            context = {"request": membro_controller.request, "ano": datetime.now().year}
-
             return settings.TEMPLATES.TemplateResponse(f"admin/membro/create.html", context=context)
         
         # Se o request for POST
@@ -65,12 +67,7 @@ class MembroAdmin(BaseCrudView):
             email: str = form.get('email')
             senha: str = form.get('senha')
             dados = {"nome": nome, "funcao": funcao, "email": email, "senha": senha}
-            context = {
-                "request": request,
-                "ano": datetime.now().year,
-                "error": err,
-                "objeto": dados
-            }
+            context.update({"error": err,"objeto": dados})
             return settings.TEMPLATES.TemplateResponse("admin/membro/create.html", context=context)
         
         return RedirectResponse(request.url_for("membro_list"), status_code=status.HTTP_302_FOUND)
@@ -80,6 +77,14 @@ class MembroAdmin(BaseCrudView):
         """
         Rota para carregar o template do formulário de edição e atualizar um membro [GET, POST]
         """
+        context = await valida_login(request)
+
+        try:
+           if not context["membro"]:
+               return settings.TEMPLATES.TemplateResponse('admin/limbo.html', context=context, status_code=status.HTTP_404_NOT_FOUND)
+        except KeyError:
+            return settings.TEMPLATES.TemplateResponse('admin/limbo.html', context=context, status_code=status.HTTP_404_NOT_FOUND)
+
         membro_controller: MembroController = MembroController(request)
 
         membro_id: int = request.path_params["obj_id"]
@@ -106,12 +111,7 @@ class MembroAdmin(BaseCrudView):
             email: str = form.get('email')
             senha: str = form.get('senha')
             dados = {"id": membro_id, "nome": nome, "funcao": funcao, "email": email, "senha": senha}
-            context = {
-                "request": request,
-                "ano": datetime.now().year,
-                "error": err,
-                "dados": dados
-            }
+            context.update({"error": err,"dados": dados})
             return settings.TEMPLATES.TemplateResponse("admin/membro/edit.html", context=context)
         
         return RedirectResponse(request.url_for("membro_list"), status_code=status.HTTP_302_FOUND)
